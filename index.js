@@ -9,10 +9,10 @@ const User = require('./models/User');
 
 
 const app = express();
+app.use(express.static(path.join(__dirname, '/public')));
 app.use(cors());
 app.use(bodyParser.json());
 app.use('/api/auth', authRoutes);
-app.use(express.static(path.join(__dirname, '/public')));
 
 const PORT = process.env.PORT || 5000;
 
