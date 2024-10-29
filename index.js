@@ -10,7 +10,9 @@ const User = require('./models/User');
 
 const app = express();
 app.use(express.static(path.join(__dirname, '/public')));
-app.use(cors());
+app.use(cors({
+    origin: 'https://filmfinder-app-0f7b7b303a13.herokuapp.com', 
+}));
 app.use(bodyParser.json());
 app.use('/api/auth', authRoutes);
 
