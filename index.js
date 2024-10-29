@@ -22,6 +22,8 @@ app.use(bodyParser.json());
 // Routes
 app.use('/api/auth', authRoutes); // Authentication routes
 app.use('/movie', movieRouter); // Movie routes
+app.use('/uploads', express.static('public/uploads'));
+
 
 const PORT = process.env.PORT || 5000;
 

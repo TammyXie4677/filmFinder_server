@@ -52,7 +52,7 @@ router.get('/byId/:id', async (req, res) => {
 // Create a new movie with cover image upload
 router.post('/', upload.single('cover_image'), async (req, res) => {
     const { title, description, genre, release_date, duration } = req.body;
-    const cover_image = req.file ? req.file.path : null; // Save file path in the database
+    const cover_image = req.file ? `uploads/${req.file.filename}` : null;
 
     try {
         const newMovie = await Movie.create({
@@ -73,7 +73,7 @@ router.post('/', upload.single('cover_image'), async (req, res) => {
 router.put('/:id', upload.single('cover_image'), async (req, res) => {
     const id = req.params.id;
     const { title, description, genre, release_date, duration } = req.body;
-    const cover_image = req.file ? req.file.path : null; // Save file path in the database
+    const cover_image = req.file ? `uploads/${req.file.filename}` : null;
 
     try {
         const movie = await Movie.findByPk(id);
