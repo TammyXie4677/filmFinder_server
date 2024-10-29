@@ -1,5 +1,5 @@
 const express = require('express');
-const bcrypt = require('bcrypt'); 
+const bcrypt = require('bcrypt');
 const User = require('../models/User');
 
 const router = express.Router();
@@ -13,7 +13,7 @@ router.post('/register', async (req, res) => {
         if (existingUserByName) {
             return res.status(400).json({ message: 'Username already in use' });
         }
-        
+
         // Check if user with the provided email already exists
         const existingUserByEmail = await User.findOne({ where: { email } });
         if (existingUserByEmail) {
@@ -22,7 +22,7 @@ router.post('/register', async (req, res) => {
 
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
-        
+
         // Create a new user
         const newUser = await User.create({ name, email, password: hashedPassword, role });
 
