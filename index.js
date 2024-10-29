@@ -11,7 +11,7 @@ const User = require('./models/User');
 const app = express();
 app.use(express.static(path.join(__dirname, '/public')));
 app.use(cors({
-    origin: 'http://localhost:5000', 
+    origin: 'http://localhost:3000', 
 }));
 app.use(bodyParser.json());
 app.use('/api/auth', authRoutes);
