@@ -8,9 +8,15 @@ router.post('/register', async (req, res) => {
     const { name, email, password, role = 'user' } = req.body; // Default role is 'user'
 
     try {
-        // Check if user already exists
-        const existingUser = await User.findOne({ where: { email } });
-        if (existingUser) {
+        // Check if user with the provided username already exists
+        const existingUserByName = await User.findOne({ where: { name } });
+        if (existingUserByName) {
+            return res.status(400).json({ message: 'Username already in use' });
+        }
+        
+        // Check if user with the provided email already exists
+        const existingUserByEmail = await User.findOne({ where: { email } });
+        if (existingUserByEmail) {
             return res.status(400).json({ message: 'Email already in use' });
         }
 
