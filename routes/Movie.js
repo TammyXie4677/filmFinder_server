@@ -73,11 +73,14 @@ router.post('/', upload.single('cover_image'), async (req, res) => {
 router.put('/:id', upload.single('cover_image'), async (req, res) => {
     const id = req.params.id;
     const { title, description, genre, release_date, duration } = req.body;
-    const cover_image = req.file ? `uploads/${req.file.filename}` : null;
+    const newCoverImage = req.file ? `uploads/${req.file.filename}` : null;
 
     try {
         const movie = await Movie.findByPk(id);
         if (!movie) return res.status(404).json({ error: "Movie not found" });
+
+        // Use the existing cover image if no new one is provided
+        const cover_image = newCoverImage || movie.cover_image;
 
         // Update movie details
         const updatedMovie = await movie.update({
@@ -94,6 +97,7 @@ router.put('/:id', upload.single('cover_image'), async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
 
 // Delete a movie by ID
 router.delete('/:id', async (req, res) => {
