@@ -13,7 +13,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware setup
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: 'https://filmfinder-app-0f7b7b303a13.herokuapp.com',
 }));
 
 app.use(bodyParser.json());
