@@ -6,26 +6,32 @@ const router = express.Router();
 // Get all showtimes
 router.get('/', async (_, res) => {
     try {
-        const showtimes = await Showtime.findAll({ include: Movie });
+        const showtimes = await Showtime.findAll({
+            include: Movie,
+            order: [['start_time', 'ASC']],
+        });
+
         res.json(showtimes);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// Get showtimes for a specific movie
+// Get showtimes for a specific movie, sorted by most recent first
 router.get('/movie/:movieId', async (req, res) => {
     const { movieId } = req.params;
     try {
         const showtimes = await Showtime.findAll({
             where: { movie_id: movieId },
             include: Movie,
+            order: [['start_time', 'ASC']], // Sort by start_time in descending order
         });
         res.json(showtimes);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
+
 
 // Create a new showtime
 router.post('/', async (req, res) => {
