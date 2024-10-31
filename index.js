@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const { connectDB } = require('./sequelize');
 const authRoutes = require('./routes/auth');
 const movieRouter = require('./routes/Movie');
+const showtimeRouter = require('./routes/Showtime');
 const app = express();
 
 // Middleware for serving static files
@@ -23,6 +24,7 @@ app.use(bodyParser.json());
 app.use('/api/auth', authRoutes); // Authentication routes
 app.use('/movie', movieRouter); // Movie routes
 app.use('/uploads', express.static('public/uploads'));
+app.use('/showtime', showtimeRouter);
 
 
 const PORT = process.env.PORT || 5000;
