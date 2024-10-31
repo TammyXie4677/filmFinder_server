@@ -5,7 +5,7 @@ const Showtime = require('./Showtime');
 class Seat extends Model { }
 
 Seat.init({
-    id: {
+    seat_id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
@@ -22,7 +22,7 @@ Seat.init({
         type: DataTypes.BOOLEAN,
         defaultValue: false,
     },
-    showtimeId: {
+    showtime_id: {
         type: DataTypes.INTEGER,
         references: {
             model: Showtime,
@@ -38,7 +38,7 @@ Seat.init({
 });
 
 // Associations
-Showtime.hasMany(Seat, { foreignKey: 'showtimeId', onDelete: 'CASCADE' });
-Seat.belongsTo(Showtime, { foreignKey: 'showtimeId' });
+Showtime.hasMany(Seat, { foreignKey: 'showtime_id', onDelete: 'CASCADE' });
+Seat.belongsTo(Showtime, { foreignKey: 'showtime_id' });
 
 module.exports = Seat;
