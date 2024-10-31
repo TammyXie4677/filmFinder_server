@@ -26,6 +26,11 @@ Showtime.init({
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
     },
+    seat_availability: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+    },
 }, {
     sequelize,
     modelName: 'Showtime',
