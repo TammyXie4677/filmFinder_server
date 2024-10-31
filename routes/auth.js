@@ -7,9 +7,14 @@ const router = express.Router();
 
 // Registration Route
 router.post('/register', async (req, res) => {
-    const { name, email, password, role = 'user' } = req.body; // Default role is 'user'
+    const { name, email, password, passwordConfirm, role = 'user' } = req.body; // Default role is 'user'
 
     try {
+        // Check if passwords match
+        if (password !== passwordConfirm) {
+            return res.status(400).json({ message: 'Passwords do not match' });
+        }
+
         // Check if user with the provided username already exists
         const existingUserByName = await User.findOne({ where: { name } });
         if (existingUserByName) {
@@ -53,7 +58,7 @@ router.post('/login', async (req, res) => {
         // Generate JWT token
         const token = jwt.sign({ userId: user.user_id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.status(200).json({ token, name: user.name, avatar: user.avatar }); // Include any other user data you want
+        res.status(200).json({ token, name: user.name, avatar: user.avatar }); 
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error logging in' });
