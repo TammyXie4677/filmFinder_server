@@ -5,6 +5,12 @@ const User = require('../models/User');
 
 const router = express.Router();
 
+// Check for JWT secret
+if (!process.env.JWT_SECRET) {
+    console.error("JWT secret is not set");
+    process.exit(1);
+}
+
 // Registration Route
 router.post('/register', async (req, res) => {
     const { name, email, password, passwordConfirm, role = 'user' } = req.body; // Default role is 'user'
