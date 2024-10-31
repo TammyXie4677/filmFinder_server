@@ -38,11 +38,19 @@ router.post('/', async (req, res) => {
             price,
             seat_availability,
         });
-        res.status(201).json(newShowtime);
+
+        // Fetch the associated movie details
+        const showtimeWithMovie = await Showtime.findOne({
+            where: { showtime_id: newShowtime.showtime_id }, // Use the correct identifier
+            include: Movie, // Include the Movie model
+        });
+
+        res.status(201).json(showtimeWithMovie); // Return the showtime with movie details
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
+
 
 // Update a showtime by ID
 router.put('/:id', async (req, res) => {
