@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Seat = require('../models/Seat');
+const Showtime = require('../models/Showtime'); // Add this line to import the Showtime model
 
 // Get occupied seats for a showtime
 router.get('/occupied/:showtimeId', async (req, res) => {
@@ -32,11 +33,26 @@ router.post('/', async (req, res) => {
         const seatsToInsert = selectedSeats.map(seat_number => ({
             showtime_id,
             seat_number,
-            is_occupied: true // Assuming this field indicates if the seat is taken
+            is_occupied: true // Mark seats as occupied
         }));
 
         // Insert or update seat data in the database
         await Seat.bulkCreate(seatsToInsert, { updateOnDuplicate: ['is_occupied'] });
+
+        // Update the seat availability in the showtimes table
+        const showtime = await Showtime.findByPk(showtime_id);
+        if (!showtime) {
+            return res.status(404).json({ error: 'Showtime not found' });
+        }
+
+        // Calculate the new availability
+        const newAvailability = showtime.seat_availability - selectedSeats.length;
+        if (newAvailability < 0) {
+            return res.status(400).json({ error: 'Not enough seats available' });
+        }
+
+        // Update the showtime with the new availability
+        await showtime.update({ seat_availability: newAvailability });
 
         res.status(200).json({ message: 'Seats reserved successfully' });
     } catch (error) {
@@ -47,6 +63,5 @@ router.post('/', async (req, res) => {
         res.status(500).json({ error: 'Failed to reserve seats', details: error.errors || error.message });
     }
 });
-
 
 module.exports = router;
