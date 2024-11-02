@@ -13,7 +13,7 @@ if (!process.env.JWT_SECRET) {
 
 // Registration Route
 router.post('/register', async (req, res) => {
-    const { name, email, password, passwordConfirm, role = 'user' } = req.body; // Default role is 'user'
+    const { name, email, password, passwordConfirm, role = 'user', avatar = null } = req.body; // Default role is 'user', default avatar is null
 
     try {
         // Check if passwords match
@@ -36,8 +36,8 @@ router.post('/register', async (req, res) => {
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create a new user
-        const newUser = await User.create({ name, email, password: hashedPassword, role });
+        // Create new user with avatar
+        const newUser = await User.create({ name, email, password: hashedPassword, role, avatar });
 
         res.status(201).json({ message: 'User registered successfully', userId: newUser.user_id });
     } catch (error) {
@@ -68,6 +68,46 @@ router.post('/login', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error logging in' });
+    }
+});
+
+// GoogleLogin route
+router.post('/google-login', async (req, res) => {
+    const { email, name, avatar, googleId } = req.body;
+
+    try {
+        console.log("Received request:", req.body); // Log the request
+
+        // Validate request
+        if (!email || !name || !googleId) {
+            return res.status(400).json({ message: 'Invalid request data' });
+        }
+
+        // Check if user exists
+        let user = await User.findOne({ where: { email } });
+
+        // Create new user if not exists
+        if (!user) {
+            user = await User.create({
+                name,
+                email,
+                role: 'user',
+                googleId,
+                avatar,
+            });
+            console.log('User created:', user);
+        }else{
+            console.log('User found:', user);
+        }
+        }
+
+        // Generate token
+        const token = jwt.sign({ userId: user.user_id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        res.status(200).json({ token, name: user.name, avatar: user.avatar });
+    } catch (error) {
+        console.error('Error during login:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 
