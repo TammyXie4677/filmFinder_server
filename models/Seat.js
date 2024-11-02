@@ -10,18 +10,6 @@ Seat.init({
         autoIncrement: true,
         primaryKey: true,
     },
-    row: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    column: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-    },
-    isOccupied: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-    },
     showtime_id: {
         type: DataTypes.INTEGER,
         references: {
@@ -29,6 +17,15 @@ Seat.init({
             key: 'showtime_id',
         },
         allowNull: false,
+    },
+    seat_number: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    is_occupied: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
     },
 }, {
     sequelize,
