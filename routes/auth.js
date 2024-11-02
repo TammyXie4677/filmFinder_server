@@ -96,9 +96,8 @@ router.post('/google-login', async (req, res) => {
                 avatar,
             });
             console.log('User created:', user);
-        }else{
+        } else {
             console.log('User found:', user);
-        }
         }
 
         // Generate token
