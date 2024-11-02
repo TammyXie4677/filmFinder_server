@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Booking = require('../models/Booking'); // Adjust the path according to your project structure
+const moment = require('moment-timezone');
+
 
 // Create a new booking
 router.post('/', async (req, res) => {
@@ -10,6 +12,8 @@ router.post('/', async (req, res) => {
     const seat_count = Array.isArray(seat_numbers) ? seat_numbers.length : 0;
 
     try {
+        const booking_date = new Date().toISOString();  // Store in ISO format
+
         const newBooking = await Booking.create({
             user_id,
             showtime_id,
@@ -17,6 +21,7 @@ router.post('/', async (req, res) => {
             seat_numbers: JSON.stringify(seat_numbers), // Store seat_numbers as a JSON string if it’s an array
             ticket_price,
             total_price,
+            booking_date,
             payment_status,
         });
         res.status(201).json(newBooking);
