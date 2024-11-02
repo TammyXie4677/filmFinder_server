@@ -13,36 +13,33 @@ if (!process.env.JWT_SECRET) {
 
 // Registration Route
 router.post('/register', async (req, res) => {
-    const { name, email, password, passwordConfirm, role = 'user', avatar = null } = req.body; // Default role is 'user', default avatar is null
+    const { name, email, password, passwordConfirm, role = 'user', avatar = null } = req.body;
 
     try {
-        // Check if passwords match
         if (password !== passwordConfirm) {
             return res.status(400).json({ message: 'Passwords do not match' });
         }
 
-        // Check if user with the provided username already exists
         const existingUserByName = await User.findOne({ where: { name } });
         if (existingUserByName) {
             return res.status(400).json({ message: 'Username already in use' });
         }
 
-        // Check if user with the provided email already exists
         const existingUserByEmail = await User.findOne({ where: { email } });
         if (existingUserByEmail) {
             return res.status(400).json({ message: 'Email already in use' });
         }
 
-        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create new user with avatar
         const newUser = await User.create({ name, email, password: hashedPassword, role, avatar });
 
-        res.status(201).json({ message: 'User registered successfully', userId: newUser.user_id });
+        const response = { message: 'User registered successfully', userId: newUser.user_id };
+        console.log('Registration Response:', response);
+        return res.status(201).json(response);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error registering user' });
+        console.error('Registration Error:', error);
+        return res.status(500).json({ message: 'Error registering user' });
     }
 });
 
@@ -61,13 +58,15 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
-        // Generate JWT token
         const token = jwt.sign({ userId: user.user_id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.status(200).json({ token, name: user.name, avatar: user.avatar }); 
+        // Include user_id and email in the response
+        const response = { token, name: user.name, avatar: user.avatar, user_id: user.user_id, email: user.email };
+        console.log('Login Response:', response);
+        return res.status(200).json(response);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error logging in' });
+        console.error('Login Error:', error);
+        return res.status(500).json({ message: 'Error logging in' });
     }
 });
 
@@ -76,7 +75,7 @@ router.post('/google-login', async (req, res) => {
     const { email, name, avatar, googleId } = req.body;
 
     try {
-        console.log("Received request:", req.body); // Log the request
+        console.log("Received request for Google login:", req.body);
 
         // Validate request
         if (!email || !name || !googleId) {
@@ -92,7 +91,7 @@ router.post('/google-login', async (req, res) => {
                 name,
                 email,
                 role: 'user',
-                googleId,
+                googleId, // Store googleId for future reference
                 avatar,
             });
             console.log('User created:', user);
@@ -100,14 +99,18 @@ router.post('/google-login', async (req, res) => {
             console.log('User found:', user);
         }
 
-        // Generate token
+        // Generate token using the internal user_id
         const token = jwt.sign({ userId: user.user_id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.status(200).json({ token, name: user.name, avatar: user.avatar });
+        // Include user_id and email in the response
+        const response = { token, name: user.name, avatar: user.avatar, user_id: user.user_id, email: user.email };
+        console.log('Google Login Response:', response);
+        return res.status(200).json(response);
     } catch (error) {
-        console.error('Error during login:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        console.error('Google Login Error:', error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 module.exports = router;
