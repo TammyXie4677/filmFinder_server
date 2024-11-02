@@ -27,7 +27,7 @@ User.init({
     },
     password: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,  // Allow null for Google users
         validate: {
             notEmpty: true,
         },
@@ -35,6 +35,15 @@ User.init({
     role: {
         type: DataTypes.ENUM('user', 'admin'),
         allowNull: false,
+        defaultValue: 'user',
+    },
+    googleId: {  
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    avatar: { 
+        type: DataTypes.STRING,
+        allowNull: true,
     },
 }, {
     sequelize,
@@ -44,3 +53,4 @@ User.init({
 });
 
 module.exports = User;
+
