@@ -13,6 +13,12 @@ const bookingRoutes = require('./routes/Booking');
 const bcrypt = require('bcrypt');
 const userRoutes = require('./routes/user'); 
 
+
+// Initialize Stripe
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2024-10-28",
+  });
+
 const app = express();
 
 // Middleware for serving static files
@@ -25,6 +31,10 @@ app.use(cors({
 
 app.use(bodyParser.json());
 app.use(express.json());
+
+if (process.env.STATIC_DIR) {
+    app.use(express.static(process.env.STATIC_DIR));
+  }
 
 // Routes
 app.use('/api/auth', authRoutes); // Authentication routes
@@ -73,3 +83,30 @@ connectDB().then(async () => {
 }).catch(err => {
     console.error('Database connection error:', err);
 });
+
+// Stripe routes
+app.get("/config", (req, res) => {
+    res.send({
+      publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
+    });
+  });
+  
+  app.post("/create-payment-intent", async (req, res) => {
+    try {
+      const { amount } = req.body;
+  
+      const paymentIntent = await stripe.paymentIntents.create({
+        currency: "CAD",
+        amount: amount, // Retrieve amount from request body
+        automatic_payment_methods: { enabled: true },
+      });
+  
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    } catch (error) {
+      res.status(400).send({
+        error: { message: error.message },
+      });
+    }
+  });
