@@ -29,27 +29,27 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ error: 'Showtime ID and selected seats are required' });
         }
 
-        // Prepare seat data for insertion
-        const seatsToInsert = selectedSeats.map(seat_number => ({
-            showtime_id,
-            seat_number,
-            is_occupied: true // Mark seats as occupied
-        }));
-
-        // Insert or update seat data in the database
-        await Seat.bulkCreate(seatsToInsert, { updateOnDuplicate: ['is_occupied'] });
-
-        // Update the seat availability in the showtimes table
+        // Check if the showtime exists
         const showtime = await Showtime.findByPk(showtime_id);
         if (!showtime) {
             return res.status(404).json({ error: 'Showtime not found' });
         }
 
-        // Calculate the new availability
+        // Check seat availability
         const newAvailability = showtime.seat_availability - selectedSeats.length;
         if (newAvailability < 0) {
             return res.status(400).json({ error: 'Not enough seats available' });
         }
+
+        // Prepare seat data for insertion
+        const seatsToInsert = selectedSeats.map(seat_number => ({
+            showtime_id, // Ensure the showtime_id is correct
+            seat_number, // Use the parameter correctly
+            is_occupied: true // Mark seats as occupied
+        }));
+
+        // Insert or update seat data in the database
+        await Seat.bulkCreate(seatsToInsert, { updateOnDuplicate: ['is_occupied'] });
 
         // Update the showtime with the new availability
         await showtime.update({ seat_availability: newAvailability });
@@ -59,9 +59,11 @@ router.post('/', async (req, res) => {
         console.error('Error reserving seats:', error); // Log the error for debugging
         if (error.name === 'SequelizeValidationError') {
             console.error('Validation errors:', error.errors);
+            return res.status(400).json({ error: 'Validation errors', details: error.errors });
         }
-        res.status(500).json({ error: 'Failed to reserve seats', details: error.errors || error.message });
+        res.status(500).json({ error: 'Failed to reserve seats', details: error.message });
     }
 });
+
 
 module.exports = router;
