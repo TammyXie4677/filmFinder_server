@@ -19,7 +19,7 @@ router.get('/occupied/:showtimeId', async (req, res) => {
     }
 });
 
-// Inside your seatRoutes.js or wherever your routes are defined
+// Reserve seat
 router.post('/', async (req, res) => {
     const { showtime_id, selectedSeats } = req.body;
 
