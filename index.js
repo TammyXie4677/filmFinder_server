@@ -85,13 +85,13 @@ connectDB().then(async () => {
 });
 
 // Stripe routes
-app.get("/config", (req, res) => {
+app.get("/api/config", (req, res) => {
     res.send({
       publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
     });
   });
   
-  app.post("/create-payment-intent", async (req, res) => {
+  app.post("/api/create-payment-intent", async (req, res) => {
     
       const { amount } = req.body;
   
