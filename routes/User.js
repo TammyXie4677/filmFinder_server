@@ -49,7 +49,7 @@ router.put('/:id', async (req, res) => {
         });
 
         // Update user properties only if they are provided in the request body
-        if (name !== undefined) {
+        if (name !== undefined && name !== user.name) {
             // Check for username uniqueness
             const existingUser = await User.findOne({ where: { name } });
             if (existingUser && existingUser.user_id !== userId) {
