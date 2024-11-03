@@ -13,12 +13,6 @@ const bookingRoutes = require('./routes/Booking');
 const bcrypt = require('bcrypt');
 const userRoutes = require('./routes/User'); 
 
-
-// Initialize Stripe
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2024-10-28",
-  });
-
 const app = express();
 
 // Middleware for serving static files
@@ -31,6 +25,11 @@ app.use(cors({
 
 app.use(bodyParser.json());
 app.use(express.json());
+
+// Initialize Stripe
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2024-10-28",
+  });
 
 if (process.env.STATIC_DIR) {
     app.use(express.static(process.env.STATIC_DIR));
