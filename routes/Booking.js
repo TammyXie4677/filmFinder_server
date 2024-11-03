@@ -3,6 +3,7 @@ const router = express.Router();
 const Booking = require('../models/Booking');
 const Showtime = require('../models/Showtime');
 const Movie = require('../models/Movie');
+const Seat = require('../models/Seat');
 const moment = require('moment-timezone');
 
 
@@ -120,18 +121,46 @@ router.put('/:id/payment-status', async (req, res) => {
     }
 });
 
-// Delete a booking by ID
+// Delete a booking by ID and release the seats
 router.delete('/:id', async (req, res) => {
     const { id } = req.params;
 
     try {
-        const booking = await Booking.destroy({
-            where: { booking_id: id } // Use the correct column name here
-        });
-
+        // First, find the booking to get the seat numbers
+        const booking = await Booking.findByPk(id);
         if (!booking) {
             return res.status(404).json({ message: 'Booking not found' });
         }
+
+        // Parse the seat numbers from the booking
+        const seatNumbers = JSON.parse(booking.seat_numbers);
+        const seatCount = seatNumbers.length; // Number of seats being released
+
+        // Release the seats by updating their status
+        await Seat.update(
+            { is_occupied: false }, // Set is_occupied to false
+            {
+                where: {
+                    showtime_id: booking.showtime_id, // Ensure to target the right showtime
+                    seat_number: seatNumbers // Update based on seat numbers
+                }
+            }
+        );
+
+        // Update seat availability in the Showtime model
+        await Showtime.increment(
+            { seat_availability: seatCount }, // Increase availability by the number of seats released
+            {
+                where: {
+                    showtime_id: booking.showtime_id // Ensure to update the correct showtime
+                }
+            }
+        );
+
+        // Now, delete the booking
+        await Booking.destroy({
+            where: { booking_id: id } // Use the correct column name here
+        });
 
         res.status(204).send(); // No Content response for successful deletion
     } catch (error) {
@@ -139,6 +168,8 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({ message: 'Error deleting booking', error });
     }
 });
+
+
 
 
 module.exports = router;
