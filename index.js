@@ -92,11 +92,11 @@ app.get("/config", (req, res) => {
   });
   
   app.post("/create-payment-intent", async (req, res) => {
-    try {
+    
       const { amount } = req.body;
   
       const paymentIntent = await stripe.paymentIntents.create({
-        currency: "CAD",
+        currency: "cad",
         amount: amount, // Retrieve amount from request body
         automatic_payment_methods: { enabled: true },
       });
@@ -104,9 +104,5 @@ app.get("/config", (req, res) => {
       res.send({
         clientSecret: paymentIntent.client_secret,
       });
-    } catch (error) {
-      res.status(400).send({
-        error: { message: error.message },
-      });
-    }
+    
   });
