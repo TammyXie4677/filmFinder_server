@@ -64,6 +64,7 @@ router.get('/user/:userId', async (req, res) => {
         }
 
         const formattedBookings = bookings.map(booking => ({
+            bookingId: booking.booking_id,
             movieName: booking.Showtime.Movie.title,
             showtime: booking.Showtime.start_time,
             seatCount: booking.seat_count,
@@ -118,5 +119,26 @@ router.put('/:id/payment-status', async (req, res) => {
         res.status(500).json({ message: 'Error updating payment status', error });
     }
 });
+
+// Delete a booking by ID
+router.delete('/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const booking = await Booking.destroy({
+            where: { booking_id: id } // Use the correct column name here
+        });
+
+        if (!booking) {
+            return res.status(404).json({ message: 'Booking not found' });
+        }
+
+        res.status(204).send(); // No Content response for successful deletion
+    } catch (error) {
+        console.error('Error occurred while deleting booking:', error);
+        res.status(500).json({ message: 'Error deleting booking', error });
+    }
+});
+
 
 module.exports = router;
