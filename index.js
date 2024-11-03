@@ -11,7 +11,7 @@ const showtimeRouter = require('./routes/Showtime');
 const seatsRouter = require('./routes/Seat');
 const bookingRoutes = require('./routes/Booking');
 const bcrypt = require('bcrypt');
-const userRoutes = require('./routes/user'); 
+const userRoutes = require('./routes/User'); 
 
 
 // Initialize Stripe
