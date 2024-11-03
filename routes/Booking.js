@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const Booking = require('../models/Booking'); // Adjust the path according to your project structure
+const Booking = require('../models/Booking');
+const Showtime = require('../models/Showtime');
+const Movie = require('../models/Movie');
 const moment = require('moment-timezone');
 
 
@@ -31,16 +33,54 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Get all bookings
-router.get('/', async (req, res) => {
+// Get all bookings for a specific user
+router.get('/user/:userId', async (req, res) => {
+    const { userId } = req.params;
+
+    console.log(`Received request to fetch bookings for user ID: ${userId}`); // Log the user ID
+
     try {
-        const bookings = await Booking.findAll();
-        res.status(200).json(bookings);
+        const bookings = await Booking.findAll({
+            where: { user_id: userId },
+            include: [
+                {
+                    model: Showtime,
+                    include: [
+                        {
+                            model: Movie,
+                            attributes: ['title'], // Fetch movie title
+                        },
+                    ],
+                    attributes: ['start_time', 'price'], // Fetch showtime details
+                },
+            ],
+        });
+
+        console.log(`Bookings found: ${JSON.stringify(bookings)}`); // Log the bookings retrieved
+
+        // If no bookings are found, log that as well
+        if (bookings.length === 0) {
+            console.log(`No bookings found for user ID: ${userId}`);
+        }
+
+        const formattedBookings = bookings.map(booking => ({
+            movieName: booking.Showtime.Movie.title,
+            showtime: booking.Showtime.start_time,
+            seatCount: booking.seat_count,
+            seatNumbers: JSON.parse(booking.seat_numbers),
+            totalPrice: booking.total_price,
+            paymentStatus: booking.payment_status,
+        }));
+
+        console.log(`Formatted bookings to return: ${JSON.stringify(formattedBookings)}`); // Log the formatted bookings
+
+        res.status(200).json(formattedBookings);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error fetching bookings', error });
+        console.error('Error occurred while fetching user bookings:', error); // Log the error
+        res.status(500).json({ message: 'Error fetching user bookings', error });
     }
 });
+
 
 // Get a booking by ID
 router.get('/:id', async (req, res) => {
