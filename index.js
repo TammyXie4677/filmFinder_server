@@ -11,7 +11,7 @@ const showtimeRouter = require('./routes/Showtime');
 const seatsRouter = require('./routes/Seat');
 const bookingRoutes = require('./routes/Booking');
 const bcrypt = require('bcrypt');
-const userRoutes = require('./routes/User'); 
+const userRoutes = require('./routes/Users'); 
 
 const app = express();
 
@@ -42,7 +42,7 @@ app.use('/uploads', express.static('public/uploads'));
 app.use('/showtime', showtimeRouter);
 app.use('/seats', seatsRouter);
 app.use('/booking', bookingRoutes);
-app.use('/api/user', userRoutes);
+app.use('/api/users', userRoutes);
 
 const PORT = process.env.PORT || 5000;
 
