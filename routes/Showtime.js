@@ -61,16 +61,23 @@ router.post('/', async (req, res) => {
 // Update a showtime by ID
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
-    const { start_time, price, seat_availability } = req.body;
+    const { movie_id, start_time, price, seat_availability } = req.body;
 
     try {
         const showtime = await Showtime.findByPk(id);
         if (!showtime) return res.status(404).json({ error: "Showtime not found" });
 
-        const updatedShowtime = await showtime.update({
+        await showtime.update({
+            movie_id,
             start_time,
             price,
             seat_availability,
+        });
+
+        // Fetch the updated showtime with the associated movie details
+        const updatedShowtime = await Showtime.findOne({
+            where: { showtime_id: id },
+            include: Movie,
         });
         res.json(updatedShowtime);
     } catch (error) {
