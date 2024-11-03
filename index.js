@@ -4,14 +4,20 @@ const path = require('path');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { connectDB } = require('./sequelize');
-const User = require('./models/User'); 
+const User = require('./models/User');
 const authRoutes = require('./routes/auth');
 const movieRouter = require('./routes/Movie');
 const showtimeRouter = require('./routes/Showtime');
 const seatsRouter = require('./routes/Seat');
 const bookingRoutes = require('./routes/Booking');
 const bcrypt = require('bcrypt');
-const userRoutes = require('./routes/Users'); 
+const userRoutes = require('./routes/User');
+const stripeRoutes = require('./routes/Stripe');
+
+// Initialize Stripe
+// const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY, {
+//     apiVersion: "2024-10-28",
+//   });
 
 const app = express();
 
@@ -27,13 +33,13 @@ app.use(bodyParser.json());
 app.use(express.json());
 
 // Initialize Stripe
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2024-10-28",
-  });
+// const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY, {
+//     apiVersion: "2024-10-28",
+//   });
 
-if (process.env.STATIC_DIR) {
-    app.use(express.static(process.env.STATIC_DIR));
-  }
+// if (process.env.STATIC_DIR) {
+//     app.use(express.static(process.env.STATIC_DIR));
+// }
 
 // Routes
 app.use('/api/auth', authRoutes); // Authentication routes
@@ -42,7 +48,8 @@ app.use('/uploads', express.static('public/uploads'));
 app.use('/showtime', showtimeRouter);
 app.use('/seats', seatsRouter);
 app.use('/booking', bookingRoutes);
-app.use('/api/users', userRoutes);
+app.use('/api/user', userRoutes);
+app.use('/payment', stripeRoutes);
 
 const PORT = process.env.PORT || 5000;
 
@@ -86,22 +93,22 @@ connectDB().then(async () => {
 // Stripe routes
 app.get("/api/config", (req, res) => {
     res.send({
-      publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
+        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
     });
-  });
-  
-  app.post("/api/create-payment-intent", async (req, res) => {
-    
-      const { amount } = req.body;
-  
-      const paymentIntent = await stripe.paymentIntents.create({
+});
+
+app.post("/api/create-payment-intent", async (req, res) => {
+
+    const { amount } = req.body;
+
+    const paymentIntent = await stripe.paymentIntents.create({
         currency: "cad",
         amount: amount, // Retrieve amount from request body
         automatic_payment_methods: { enabled: true },
-      });
-  
-      res.send({
+    });
+
+    res.send({
         clientSecret: paymentIntent.client_secret,
-      });
-    
-  });
+    });
+
+});
