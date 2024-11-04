@@ -30,8 +30,8 @@ router.post('/create-checkout-session', async (req, res) => {
                 },
             ],
             mode: 'payment',
-            success_url: `http://localhost:3000/payment-success?bookingId=${bookingId}&showtimeId=${showtimeId}&selectedSeats=${JSON.stringify(selectedSeats)}`,
-            cancel_url: `http://localhost:3000/booking/${bookingId}&status=cancelled`,
+            success_url: `https://filmfinder-app-0f7b7b303a13.herokuapp.com/payment-success?bookingId=${bookingId}&showtimeId=${showtimeId}&selectedSeats=${JSON.stringify(selectedSeats)}`,
+            cancel_url: `https://filmfinder-app-0f7b7b303a13.herokuapp.com/booking/${bookingId}&status=cancelled`,
             metadata: { bookingId, selectedSeats: JSON.stringify(selectedSeats) }, // Store seat numbers as JSON string
         });
 
