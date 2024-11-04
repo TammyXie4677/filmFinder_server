@@ -21,7 +21,7 @@ router.post('/', async (req, res) => {
             user_id,
             showtime_id,
             seat_count,
-            seat_numbers: JSON.stringify(seat_numbers), // Store seat_numbers as a JSON string if it’s an array
+            seat_numbers: JSON.stringify(seat_numbers), 
             ticket_price,
             total_price,
             booking_date,
@@ -57,7 +57,7 @@ router.get('/user/:userId', async (req, res) => {
             ],
         });
 
-        console.log(`Bookings found: ${JSON.stringify(bookings)}`); // Log the bookings retrieved
+        console.log(`Bookings found: ${JSON.stringify(bookings)}`); 
 
         // If no bookings are found, log that as well
         if (bookings.length === 0) {
@@ -74,11 +74,11 @@ router.get('/user/:userId', async (req, res) => {
             paymentStatus: booking.payment_status,
         }));
 
-        console.log(`Formatted bookings to return: ${JSON.stringify(formattedBookings)}`); // Log the formatted bookings
+        console.log(`Formatted bookings to return: ${JSON.stringify(formattedBookings)}`); 
 
         res.status(200).json(formattedBookings);
     } catch (error) {
-        console.error('Error occurred while fetching user bookings:', error); // Log the error
+        console.error('Error occurred while fetching user bookings:', error); 
         res.status(500).json({ message: 'Error fetching user bookings', error });
     }
 });
@@ -159,10 +159,10 @@ router.delete('/:id', async (req, res) => {
 
         // Now, delete the booking
         await Booking.destroy({
-            where: { booking_id: id } // Use the correct column name here
+            where: { booking_id: id } 
         });
 
-        res.status(204).send(); // No Content response for successful deletion
+        res.status(204).send(); 
     } catch (error) {
         console.error('Error occurred while deleting booking:', error);
         res.status(500).json({ message: 'Error deleting booking', error });

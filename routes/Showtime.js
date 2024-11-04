@@ -47,8 +47,8 @@ router.post('/', async (req, res) => {
 
         // Fetch the associated movie details
         const showtimeWithMovie = await Showtime.findOne({
-            where: { showtime_id: newShowtime.showtime_id }, // Use the correct identifier
-            include: Movie, // Include the Movie model
+            where: { showtime_id: newShowtime.showtime_id }, 
+            include: Movie, 
         });
 
         res.status(201).json(showtimeWithMovie); // Return the showtime with movie details

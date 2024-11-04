@@ -1,14 +1,14 @@
 const express = require('express');
 const multer = require('multer');
-const sharp = require('sharp'); // Import sharp for image processing
+const sharp = require('sharp'); 
 const Movie = require('../models/Movie');
 const router = express.Router();
 const { S3Client, PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
-const { v4: uuidv4 } = require('uuid'); // For unique filenames
+const { v4: uuidv4 } = require('uuid'); 
 
 // Create an S3 client
 const s3Client = new S3Client({
-    region: "us-east-1", // Adjust your region
+    region: "us-east-1", 
     credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -98,7 +98,7 @@ router.put('/:id', upload.single('cover_image'), async (req, res) => {
         // If a new image is provided, upload it to S3
         if (req.file) {
             // Delete the old cover image from S3
-            const oldFileName = movie.cover_image.split('/').pop(); // Extract file name
+            const oldFileName = movie.cover_image.split('/').pop(); 
             const deleteParams = {
                 Bucket: 'filmfinder-uploads',
                 Key: oldFileName, // Key is the filename
@@ -152,7 +152,7 @@ router.delete('/:id', async (req, res) => {
         // Delete the image from S3
         const deleteParams = {
             Bucket: 'filmfinder-uploads',
-            Key: movie.cover_image.split('/').pop() // Extract the file name from the URL
+            Key: movie.cover_image.split('/').pop() 
         };
         await s3Client.send(new DeleteObjectCommand(deleteParams));
 

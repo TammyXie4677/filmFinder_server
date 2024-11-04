@@ -2,7 +2,7 @@ const { sequelize } = require('../sequelize');
 const Movie = require('../models/Movie');
 const Showtime = require('../models/Showtime');
 const Seat = require('../models/Seat');
-const Booking = require('../models/Booking'); // Import your Booking model
+const Booking = require('../models/Booking'); 
 
 const seedMovies = async () => {
     try {

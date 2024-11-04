@@ -33,12 +33,11 @@ router.post('/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await User.create({ name, email, password: hashedPassword, role, avatar });
 
-        // Log the newly created user including their role
         console.log('User registered successfully:', {
             userId: newUser.user_id,
             name: newUser.name,
             email: newUser.email,
-            role: newUser.role // Log the role
+            role: newUser.role 
         });
 
         return res.status(201).json({ message: 'User registered successfully', userId: newUser.user_id });
@@ -66,7 +65,7 @@ router.post('/login', async (req, res) => {
         const token = jwt.sign({ userId: user.user_id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         const response = { token, name: user.name, avatar: user.avatar, user_id: user.user_id, email: user.email, role: user.role };
-        console.log('Login Response:', response); // Log the login response including role
+        console.log('Login Response:', response); 
         return res.status(200).json(response);
     } catch (error) {
         console.error('Login Error:', error);
@@ -93,28 +92,28 @@ router.post('/google-login', async (req, res) => {
                 name,
                 email,
                 role: 'user',
-                googleId, // Store googleId for future reference
+                googleId, 
                 avatar,
             });
             console.log('User created:', {
                 userId: user.user_id,
                 name: user.name,
                 email: user.email,
-                role: user.role // Log the role
+                role: user.role 
             });
         } else {
             console.log('User found:', {
                 userId: user.user_id,
                 name: user.name,
                 email: user.email,
-                role: user.role // Log the role
+                role: user.role 
             });
         }
 
         const token = jwt.sign({ userId: user.user_id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         const response = { token, name: user.name, avatar: user.avatar, user_id: user.user_id, email: user.email, role: user.role };
-        console.log('Google Login Response:', response); // Log the response including role
+        console.log('Google Login Response:', response); 
         return res.status(200).json(response);
     } catch (error) {
         console.error('Google Login Error:', error);

@@ -1,4 +1,3 @@
-// Install Stripe SDK: npm install stripe
 const express = require('express');
 const router = express.Router();
 const Stripe = require('stripe');
@@ -13,7 +12,7 @@ router.post('/create-checkout-session', async (req, res) => {
     console.log("Received request to create checkout session");
     console.log("Total Price:", totalPrice);
     console.log("Booking ID:", bookingId);
-    console.log("Selected Seats:", selectedSeats); // Log selected seats
+    console.log("Selected Seats:", selectedSeats); 
     console.log("Showtime ID:", showtimeId);
 
     try {
@@ -32,7 +31,7 @@ router.post('/create-checkout-session', async (req, res) => {
             mode: 'payment',
             success_url: `https://filmfinder-app-0f7b7b303a13.herokuapp.com/payment-success?bookingId=${bookingId}&showtimeId=${showtimeId}&selectedSeats=${JSON.stringify(selectedSeats)}`,
             cancel_url: `https://filmfinder-app-0f7b7b303a13.herokuapp.com/booking/${bookingId}&status=cancelled`,
-            metadata: { bookingId, selectedSeats: JSON.stringify(selectedSeats) }, // Store seat numbers as JSON string
+            metadata: { bookingId, selectedSeats: JSON.stringify(selectedSeats) }, 
         });
 
         console.log("Stripe session created successfully:", session.id);

@@ -32,8 +32,8 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "../filmFinder_client/client/build")));
 
 // API Routes
-app.use('/api/auth', authRoutes); // Authentication routes
-app.use('/movie', movieRouter); // Movie routes
+app.use('/api/auth', authRoutes); 
+app.use('/movie', movieRouter); 
 app.use('/uploads', express.static('public/uploads'));
 app.use('/showtime', showtimeRouter);
 app.use('/seats', seatsRouter);
@@ -49,22 +49,21 @@ app.get("*", (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 async function createAdminAccount() {
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com'; // Set your admin email
-    const adminPassword = process.env.ADMIN_PASSWORD || 'adminPassword123'; // Set a strong password
-
+    const adminEmail = process.env.ADMIN_EMAIL; 
+    const adminPassword = process.env.ADMIN_PASSWORD; 
     try {
         // Check if the admin account already exists
         const adminUser = await User.findOne({ where: { email: adminEmail } });
 
         if (!adminUser) {
             // Create the admin account if it doesn't exist
-            const hashedPassword = await bcrypt.hash(adminPassword, 10); // Use bcrypt to hash the password
+            const hashedPassword = await bcrypt.hash(adminPassword, 10); 
             await User.create({
                 name: 'Admin',
                 email: adminEmail,
                 password: hashedPassword,
                 role: 'admin',
-                avatar: '', // You can set a default avatar if needed
+                avatar: '', 
             });
             console.log('Admin account created successfully.');
         } else {

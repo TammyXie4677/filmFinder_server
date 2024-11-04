@@ -6,21 +6,21 @@ const bcrypt = require('bcrypt');
 // Fetch user profile
 router.get('/:id', async (req, res) => {
     const userId = req.params.id;
-    console.log(`Fetching user profile for userId: ${userId}`); // Log user ID
+    console.log(`Fetching user profile for userId: ${userId}`);
 
     try {
         const user = await User.findOne({
             where: { user_id: userId },
-            attributes: ['email', 'avatar', 'name', 'role'] // Include role here
+            attributes: ['email', 'avatar', 'name', 'role'] 
         });
 
         if (!user) {
-            console.log('User not found'); // Log if user is not found
+            console.log('User not found'); 
             return res.status(404).json({ message: 'User not found' });
         }
 
-        console.log('User fetched successfully:', user); // Log user data if found
-        console.log(`User role: ${user.role}`); // Log the user role
+        console.log('User fetched successfully:', user); 
+        console.log(`User role: ${user.role}`); 
         return res.status(200).json(user);
     } catch (error) {
         console.error('Error fetching user profile:', error.message, error.stack);
@@ -31,16 +31,16 @@ router.get('/:id', async (req, res) => {
 // Update user profile
 router.put('/:id', async (req, res) => {
     const userId = req.params.id;
-    const { name, password, avatar } = req.body; // Destructure properties from the request body
+    const { name, password, avatar } = req.body; 
 
-    console.log(`Updating user profile for userId: ${userId}`); // Log user ID
-    console.log('Request body:', req.body); // Log request body
+    console.log(`Updating user profile for userId: ${userId}`); 
+    console.log('Request body:', req.body); 
 
     try {
         const user = await User.findOne({ where: { user_id: userId } });
 
         if (!user) {
-            console.log('User not found'); // Log if user is not found
+            console.log('User not found'); 
             return res.status(404).json({ message: 'User not found' });
         }
 
@@ -49,7 +49,7 @@ router.put('/:id', async (req, res) => {
             name: user.name,
             avatar: user.avatar,
             email: user.email,
-            role: user.role // Log the current user role
+            role: user.role 
         });
 
         // Update user properties only if they are provided in the request body
@@ -59,17 +59,17 @@ router.put('/:id', async (req, res) => {
             if (existingUser && existingUser.user_id !== userId) {
                 return res.status(400).json({ message: 'Username is already in use' });
             }
-            user.name = name; // Only update if a new name is provided
+            user.name = name; 
         }
 
         if (avatar !== undefined) {
-            user.avatar = avatar; // Only update if a new avatar is provided
+            user.avatar = avatar; 
         }
 
         if (password) {
-            console.log('Updating password'); // Log if password is being updated
+            console.log('Updating password'); 
             const hashedPassword = await bcrypt.hash(password, 10);
-            user.password = hashedPassword; // Never expose this to the client
+            user.password = hashedPassword; 
         }
 
         await user.save(); // Save the updated user
@@ -78,14 +78,14 @@ router.put('/:id', async (req, res) => {
             email: user.email,
             avatar: user.avatar,
             name: user.name,
-            role: user.role // Log the user role after update
+            role: user.role 
         });
 
         // Send back a sanitized user object
         const { email, avatar: userAvatar, name: userName, role: userRole } = user;
         return res.status(200).json({ message: 'User updated successfully', user: { email, avatar: userAvatar, name: userName, role: userRole } });
     } catch (error) {
-        console.error('Error updating user profile:', error); // Log error
+        console.error('Error updating user profile:', error); 
         return res.status(500).json({ message: 'Internal server error' });
     }
 });

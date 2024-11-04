@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Seat = require('../models/Seat');
-const Showtime = require('../models/Showtime'); // Add this line to import the Showtime model
+const Showtime = require('../models/Showtime'); 
 
 // Get occupied seats for a showtime
 router.get('/occupied/:showtimeId', async (req, res) => {
@@ -43,9 +43,9 @@ router.post('/', async (req, res) => {
 
         // Prepare seat data for insertion
         const seatsToInsert = selectedSeats.map(seat_number => ({
-            showtime_id, // Ensure the showtime_id is correct
-            seat_number, // Use the parameter correctly
-            is_occupied: true // Mark seats as occupied
+            showtime_id, 
+            seat_number, 
+            is_occupied: true 
         }));
 
         // Insert or update seat data in the database
@@ -56,7 +56,7 @@ router.post('/', async (req, res) => {
 
         res.status(200).json({ message: 'Seats reserved successfully' });
     } catch (error) {
-        console.error('Error reserving seats:', error); // Log the error for debugging
+        console.error('Error reserving seats:', error); 
         if (error.name === 'SequelizeValidationError') {
             console.error('Validation errors:', error.errors);
             return res.status(400).json({ error: 'Validation errors', details: error.errors });
