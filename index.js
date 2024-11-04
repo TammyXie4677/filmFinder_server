@@ -16,6 +16,60 @@ const stripeRoutes = require('./routes/Stripe');
 
 const app = express();
 
+//test s3
+const AWS = require('aws-sdk');
+const s3 = new AWS.S3();
+
+(async () => {
+    await
+        s3.putObject({
+            Bucket: 'filmfinder-uploads',
+            Key: 'test.txt',
+            Body: 'Hello world!',
+        }, (err, data) => {
+            if (err) {
+                console.error(err);
+            } else {
+                console.log(data);
+            }
+        }).promise();
+})();
+
+const multer = require('multer');
+const { v4: uuidv4 } = require('uuid'); // For unique filenames
+
+
+// Configure Multer
+const storage = multer.memoryStorage(); // Store files in memory
+const upload = multer({ storage });
+
+// Route for image upload
+app.post('/upload', upload.single('image'), async (req, res) => {
+    try {
+        const fileContent = req.file.buffer; // Get file buffer from multer
+        const fileName = `${uuidv4()}.${req.file.mimetype.split('/')[1]}`; // Create unique file name
+
+        const params = {
+            Bucket: 'filmfinder-uploads',
+            Key: fileName,
+            Body: fileContent,
+            ContentType: req.file.mimetype,
+            // Remove ACL line
+        };
+
+        // Upload to S3
+        const data = await s3.upload(params).promise();
+        res.status(200).send({ message: 'Upload successful', data });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: 'Upload failed', error: err });
+    }
+});
+
+//test s3 ends
+
+
+
 // Middleware for serving static files
 app.use(express.static(path.join(__dirname, 'public')));
 
