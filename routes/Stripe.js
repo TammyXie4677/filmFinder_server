@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const Stripe = require('stripe');
-const stripe = Stripe('sk_test_51QH7GKFsjFK2S4k6lUm23LqwHOuMxa4zg7jAgK2kyo19RI1jE5lYj6ml1tUpMg4PfJtsJmIA19jw9aK8wZrKl5z300oCk0RBMx');
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 
 // Route to create a Stripe Checkout Session
