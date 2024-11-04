@@ -83,7 +83,7 @@ app.use(express.json());
 
 
 // Serve React static files (adjust the path to match your setup)
-app.use(express.static(path.join(__dirname, "../client/build")));
+app.use(express.static(path.join(__dirname, "../filmFinder_client/client/build")));
 
 // API Routes
 app.use('/api/auth', authRoutes); // Authentication routes
@@ -97,7 +97,7 @@ app.use('/payment', stripeRoutes);
 
 // Catch-all route to handle React client-side routing (place this after all API routes)
 app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../client/build", "index.html"));
+    res.sendFile(path.join(__dirname, "../filmFinder_client/client/build", "index.html"));
 });
 
 const PORT = process.env.PORT || 5000;
