@@ -1,8 +1,9 @@
 const express = require('express');
 const multer = require('multer');
+const sharp = require('sharp'); // Import sharp for image processing
 const Movie = require('../models/Movie');
 const router = express.Router();
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { S3Client, PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const { v4: uuidv4 } = require('uuid'); // For unique filenames
 
 // Create an S3 client
@@ -49,18 +50,22 @@ router.post('/', upload.single('cover_image'), async (req, res) => {
     }
 
     try {
-        const fileContent = req.file.buffer; // Get file buffer from multer
-        const fileName = `${uuidv4()}.${req.file.mimetype.split('/')[1]}`; // Create a unique file name
+        // Compress the image to quality 20
+        const compressedImageBuffer = await sharp(req.file.buffer)
+            .jpeg({ quality: 20 })
+            .toBuffer();
+
+        const fileName = `${uuidv4()}.jpg`; // Change extension to .jpg as we are converting to JPEG
 
         const params = {
             Bucket: 'filmfinder-uploads',
             Key: fileName,
-            Body: fileContent,
-            ContentType: req.file.mimetype,
+            Body: compressedImageBuffer,
+            ContentType: 'image/jpeg',
         };
 
         // Upload to S3
-        const data = await s3Client.send(new PutObjectCommand(params));
+        await s3Client.send(new PutObjectCommand(params));
 
         // Store the S3 URL in the database
         const newMovie = await Movie.create({
@@ -69,7 +74,7 @@ router.post('/', upload.single('cover_image'), async (req, res) => {
             genre,
             release_date,
             duration,
-            cover_image: `https://filmfinder-uploads.s3.us-east-1.amazonaws.com/${fileName}`, // Use the S3 URL
+            cover_image: `https://filmfinder-uploads.s3.amazonaws.com/${fileName}`,
         });
 
         res.status(201).json(newMovie);
@@ -92,20 +97,32 @@ router.put('/:id', upload.single('cover_image'), async (req, res) => {
 
         // If a new image is provided, upload it to S3
         if (req.file) {
-            const fileContent = req.file.buffer; // Get file buffer from multer
-            const fileName = `${uuidv4()}.${req.file.mimetype.split('/')[1]}`; // Create a unique file name
+            // Delete the old cover image from S3
+            const oldFileName = movie.cover_image.split('/').pop(); // Extract file name
+            const deleteParams = {
+                Bucket: 'filmfinder-uploads',
+                Key: oldFileName, // Key is the filename
+            };
+            await s3Client.send(new DeleteObjectCommand(deleteParams));
+
+            // Compress the new image to quality 20
+            const compressedImageBuffer = await sharp(req.file.buffer)
+                .jpeg({ quality: 20 })
+                .toBuffer();
+
+            const newFileName = `${uuidv4()}.jpg`; // Create a unique file name
 
             const params = {
                 Bucket: 'filmfinder-uploads',
-                Key: fileName,
-                Body: fileContent,
-                ContentType: req.file.mimetype,
+                Key: newFileName,
+                Body: compressedImageBuffer,
+                ContentType: 'image/jpeg',
             };
 
-            // Upload to S3
+            // Upload new image to S3
             await s3Client.send(new PutObjectCommand(params));
 
-            cover_image = `https://filmfinder-uploads.s3.us-east-1.amazonaws.com/${fileName}`; // Use the new S3 URL
+            cover_image = `https://filmfinder-uploads.s3.amazonaws.com/${newFileName}`; // Use the new S3 URL
         }
 
         // Update movie details
@@ -132,12 +149,12 @@ router.delete('/:id', async (req, res) => {
         const movie = await Movie.findByPk(id);
         if (!movie) return res.status(404).json({ error: "Movie not found" });
 
-        // Optionally, you can delete the image from S3 if required
-        // const deleteParams = {
-        //     Bucket: 'filmfinder-uploads',
-        //     Key: movie.cover_image.split('/').pop() // Extract the file name from the URL
-        // };
-        // await s3Client.send(new DeleteObjectCommand(deleteParams));
+        // Delete the image from S3
+        const deleteParams = {
+            Bucket: 'filmfinder-uploads',
+            Key: movie.cover_image.split('/').pop() // Extract the file name from the URL
+        };
+        await s3Client.send(new DeleteObjectCommand(deleteParams));
 
         await movie.destroy(); // Delete the movie
         res.status(204).send(); // Send no content response
