@@ -89,7 +89,7 @@ app.use('/uploads', express.static('public/uploads'));
 app.use('/showtime', showtimeRouter);
 app.use('/seats', seatsRouter);
 app.use('/booking', bookingRoutes);
-app.use('/api/user', userRoutes);
+app.use('/api/users', userRoutes);
 app.use('/payment', stripeRoutes);
 
 const PORT = process.env.PORT || 5000;
