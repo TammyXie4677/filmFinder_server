@@ -31,12 +31,17 @@ router.post('/register', async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-
         const newUser = await User.create({ name, email, password: hashedPassword, role, avatar });
 
-        const response = { message: 'User registered successfully', userId: newUser.user_id };
-        console.log('Registration Response:', response);
-        return res.status(201).json(response);
+        // Log the newly created user including their role
+        console.log('User registered successfully:', {
+            userId: newUser.user_id,
+            name: newUser.name,
+            email: newUser.email,
+            role: newUser.role // Log the role
+        });
+
+        return res.status(201).json({ message: 'User registered successfully', userId: newUser.user_id });
     } catch (error) {
         console.error('Registration Error:', error);
         return res.status(500).json({ message: 'Error registering user' });
@@ -60,9 +65,8 @@ router.post('/login', async (req, res) => {
 
         const token = jwt.sign({ userId: user.user_id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        // Include user_id and email in the response
-        const response = { token, name: user.name, avatar: user.avatar, user_id: user.user_id, email: user.email };
-        console.log('Login Response:', response);
+        const response = { token, name: user.name, avatar: user.avatar, user_id: user.user_id, email: user.email, role: user.role };
+        console.log('Login Response:', response); // Log the login response including role
         return res.status(200).json(response);
     } catch (error) {
         console.error('Login Error:', error);
@@ -82,10 +86,8 @@ router.post('/google-login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid request data' });
         }
 
-        // Check if user exists
         let user = await User.findOne({ where: { email } });
 
-        // Create new user if not exists
         if (!user) {
             user = await User.create({
                 name,
@@ -94,23 +96,30 @@ router.post('/google-login', async (req, res) => {
                 googleId, // Store googleId for future reference
                 avatar,
             });
-            console.log('User created:', user);
+            console.log('User created:', {
+                userId: user.user_id,
+                name: user.name,
+                email: user.email,
+                role: user.role // Log the role
+            });
         } else {
-            console.log('User found:', user);
+            console.log('User found:', {
+                userId: user.user_id,
+                name: user.name,
+                email: user.email,
+                role: user.role // Log the role
+            });
         }
 
-        // Generate token using the internal user_id
         const token = jwt.sign({ userId: user.user_id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        // Include user_id and email in the response
-        const response = { token, name: user.name, avatar: user.avatar, user_id: user.user_id, email: user.email };
-        console.log('Google Login Response:', response);
+        const response = { token, name: user.name, avatar: user.avatar, user_id: user.user_id, email: user.email, role: user.role };
+        console.log('Google Login Response:', response); // Log the response including role
         return res.status(200).json(response);
     } catch (error) {
         console.error('Google Login Error:', error);
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
-
 
 module.exports = router;

@@ -1,7 +1,7 @@
 const express = require('express');
-const User = require('../models/User'); 
+const User = require('../models/User');
 const router = express.Router();
-const bcrypt = require('bcrypt'); 
+const bcrypt = require('bcrypt');
 
 // Fetch user profile
 router.get('/:id', async (req, res) => {
@@ -9,8 +9,10 @@ router.get('/:id', async (req, res) => {
     console.log(`Fetching user profile for userId: ${userId}`); // Log user ID
 
     try {
-        const user = await User.findOne({ where: { user_id: userId }, 
-            attributes: ['email', 'avatar', 'name'] });
+        const user = await User.findOne({
+            where: { user_id: userId },
+            attributes: ['email', 'avatar', 'name', 'role'] // Include role here
+        });
 
         if (!user) {
             console.log('User not found'); // Log if user is not found
@@ -18,6 +20,7 @@ router.get('/:id', async (req, res) => {
         }
 
         console.log('User fetched successfully:', user); // Log user data if found
+        console.log(`User role: ${user.role}`); // Log the user role
         return res.status(200).json(user);
     } catch (error) {
         console.error('Error fetching user profile:', error.message, error.stack);
@@ -35,7 +38,7 @@ router.put('/:id', async (req, res) => {
 
     try {
         const user = await User.findOne({ where: { user_id: userId } });
-        
+
         if (!user) {
             console.log('User not found'); // Log if user is not found
             return res.status(404).json({ message: 'User not found' });
@@ -45,7 +48,8 @@ router.put('/:id', async (req, res) => {
         console.log('Current user data:', {
             name: user.name,
             avatar: user.avatar,
-            email: user.email
+            email: user.email,
+            role: user.role // Log the current user role
         });
 
         // Update user properties only if they are provided in the request body
@@ -57,7 +61,7 @@ router.put('/:id', async (req, res) => {
             }
             user.name = name; // Only update if a new name is provided
         }
-        
+
         if (avatar !== undefined) {
             user.avatar = avatar; // Only update if a new avatar is provided
         }
@@ -73,12 +77,13 @@ router.put('/:id', async (req, res) => {
         console.log('User updated successfully:', {
             email: user.email,
             avatar: user.avatar,
-            name: user.name
+            name: user.name,
+            role: user.role // Log the user role after update
         });
 
         // Send back a sanitized user object
-        const { email, avatar: userAvatar, name: userName } = user;
-        return res.status(200).json({ message: 'User updated successfully', user: { email, avatar: userAvatar, name: userName } });
+        const { email, avatar: userAvatar, name: userName, role: userRole } = user;
+        return res.status(200).json({ message: 'User updated successfully', user: { email, avatar: userAvatar, name: userName, role: userRole } });
     } catch (error) {
         console.error('Error updating user profile:', error); // Log error
         return res.status(500).json({ message: 'Internal server error' });
